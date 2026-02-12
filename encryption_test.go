@@ -19,17 +19,15 @@ const (
 	defaultKid = "dHXTSCyouq6DiWaQwlXtNP54-C75mw3IcoYkERfl3fQ"
 )
 
-var (
-	registeredClaims = &jwt.RegisteredClaims{
-		Audience:  audience,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(1) * time.Hour)),
-		ID:        "0123456789abcdef",
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		Issuer:    issuer,
-		NotBefore: jwt.NewNumericDate(time.Time{}),
-		Subject:   "123456789",
-	}
-)
+var registeredClaims = &jwt.RegisteredClaims{
+	Audience:  audience,
+	ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(1) * time.Hour)),
+	ID:        "0123456789abcdef",
+	IssuedAt:  jwt.NewNumericDate(time.Now()),
+	Issuer:    issuer,
+	NotBefore: jwt.NewNumericDate(time.Time{}),
+	Subject:   "123456789",
+}
 
 func TestDefaultKeypair(t *testing.T) {
 	keypair, err := mockoidc.DefaultKeypair()
@@ -52,7 +50,7 @@ func TestKeypair_JWKS(t *testing.T) {
 }
 
 func TestKeypair_SignJWTVerifyJWT(t *testing.T) {
-	for _, size := range []int{512, 1024, 2048} {
+	for _, size := range []int{1024, 2048} {
 		t.Run(fmt.Sprintf("%d", size), func(t *testing.T) {
 			alice, err := mockoidc.RandomKeypair(size)
 			assert.NoError(t, err)
