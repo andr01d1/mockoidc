@@ -24,13 +24,25 @@ type User interface {
 
 // MockUser is a default implementation of the User interface
 type MockUser struct {
-	Subject           string
-	Email             string
-	EmailVerified     bool
+	// openid scope
+	Subject string
+
+	// email scope
+	Email         string
+	EmailVerified bool
+
+	// profile scope
+	Name              string
 	PreferredUsername string
-	Phone             string
-	Address           string
-	Groups            []string
+
+	// phone scope
+	Phone         string
+	PhoneVerified bool
+
+	// address scope
+	Address string
+
+	Groups []string
 }
 
 // DefaultUser returns a default MockUser that is set in
@@ -39,8 +51,10 @@ func DefaultUser() *MockUser {
 	return &MockUser{
 		Subject:           "1234567890",
 		Email:             "jane.doe@example.com",
+		Name:              "Jane Doe",
 		PreferredUsername: "jane.doe",
 		Phone:             "555-987-6543",
+		PhoneVerified:     true,
 		Address:           "123 Main Street",
 		Groups:            []string{"engineering", "design"},
 		EmailVerified:     true,
@@ -51,8 +65,10 @@ type mockUserinfo struct {
 	Subject           string   `json:"sub,omitempty"`
 	Email             string   `json:"email,omitempty"`
 	EmailVerified     bool     `json:"email_verified,omitempty"`
+	Name              string   `json:"name,omitempty"`
 	PreferredUsername string   `json:"preferred_username,omitempty"`
 	Phone             string   `json:"phone_number,omitempty"`
+	PhoneVerified     bool     `json:"phone_number_verified,omitempty"`
 	Address           string   `json:"address,omitempty"`
 	Groups            []string `json:"groups,omitempty"`
 }
@@ -68,8 +84,10 @@ func (u *MockUser) Userinfo(scope []string) ([]byte, error) {
 		Subject:           user.Subject,
 		Email:             user.Email,
 		EmailVerified:     user.EmailVerified,
+		Name:              user.Name,
 		PreferredUsername: user.PreferredUsername,
 		Phone:             user.Phone,
+		PhoneVerified:     user.PhoneVerified,
 		Address:           user.Address,
 		Groups:            user.Groups,
 	}
@@ -81,8 +99,10 @@ type mockClaims struct {
 	*IDTokenClaims
 	Email             string   `json:"email,omitempty"`
 	EmailVerified     bool     `json:"email_verified,omitempty"`
+	Name              string   `json:"name,omitempty"`
 	PreferredUsername string   `json:"preferred_username,omitempty"`
 	Phone             string   `json:"phone_number,omitempty"`
+	PhoneVerified     bool     `json:"phone_number_verified,omitempty"`
 	Address           string   `json:"address,omitempty"`
 	Groups            []string `json:"groups,omitempty"`
 }
@@ -94,8 +114,10 @@ func (u *MockUser) Claims(scope []string, claims *IDTokenClaims) (jwt.Claims, er
 		IDTokenClaims:     claims,
 		Email:             user.Email,
 		EmailVerified:     user.EmailVerified,
+		Name:              user.Name,
 		PreferredUsername: user.PreferredUsername,
 		Phone:             user.Phone,
+		PhoneVerified:     user.PhoneVerified,
 		Address:           user.Address,
 		Groups:            user.Groups,
 	}, nil
@@ -108,9 +130,13 @@ func (u *MockUser) scopedClone(scopes []string) *MockUser {
 	for _, scope := range scopes {
 		switch scope {
 		case "profile":
+			clone.Name = u.Name
 			clone.PreferredUsername = u.PreferredUsername
+		case "address":
 			clone.Address = u.Address
+		case "phone":
 			clone.Phone = u.Phone
+			clone.PhoneVerified = u.PhoneVerified
 		case "email":
 			clone.Email = u.Email
 			clone.EmailVerified = u.EmailVerified
